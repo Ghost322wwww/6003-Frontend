@@ -26,12 +26,19 @@ const EditHotel = () => {
       setLocation(res.data.location);
       setPricePerNight(res.data.pricePerNight.toString());
       setAvailableRooms(res.data.availableRooms.toString());
-      setCurrentImageUrl(res.data.image || null);
+      setCurrentImageUrl(res.data.imageUrl || null);  
     })
     .catch(err => {
       console.error('Failed to fetch hotel data', err);
     });
   }, [hotelId, token]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+      setCurrentImageUrl(URL.createObjectURL(e.target.files[0]));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,7 +119,11 @@ const EditHotel = () => {
           <label>Current Image</label><br />
           {currentImageUrl ? (
             <img
-              src={`http://localhost:5000${currentImageUrl}`}
+              src={
+                currentImageUrl.startsWith('blob:')
+                  ? currentImageUrl
+                  : `http://localhost:5000${currentImageUrl}`
+              }
               alt="Hotel"
               style={{ width: 200, height: 'auto', marginBottom: '1rem' }}
             />
@@ -127,7 +138,7 @@ const EditHotel = () => {
             type="file"
             id="image"
             accept="image/*"
-            onChange={(e) => setImage(e.target.files ? e.target.files[0] : null)}
+            onChange={handleImageChange}
           />
         </div>
 
